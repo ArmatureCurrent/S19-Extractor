@@ -47,20 +47,20 @@ int main(int argc, char *argv[])
     std::ifstream file_in(argv[1], std::fstream::binary);
     std::ofstream file_out("flashProgram.h", std::fstream::trunc | std::fstream::ate);
 
-    if (!file_in.is_open())
+    if(!file_in.is_open())
     {
         std::cout << "File \'" << argv[1] << "\' couldn't be opened!\n";
         return 0;
     }
 
-    if (!file_out.is_open())
+    if(!file_out.is_open())
     {
         std::cout << "File tagsFlash.h couldn't be opened!\n";
         return 0;
     }
     std::cout << "Files are opened\n";
 
-    while (!file_in.eof())
+    while(!file_in.eof())
     {
         file_in.read(&pChar, 1);
 
@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
         // each string should begin
         // with 'S' symbol
         // -------------------------------------
-        if (pChar == 'S')
+        if(pChar == 'S')
         {
             countString++;
 
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
             // contain data to be programed
             // into target memory
             // -------------------------------------
-            if (pChar == '1')
+            if(pChar == '1')
             {
                 // -------------------------------------
                 // Read count of bytes
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
                 // String with 3 or less bytes
                 // doesn't contain any valuable data
                 // -------------------------------------
-                if (countBytes <= 3)
+                if(countBytes <= 3)
                 {
                     continue;
                 }
@@ -130,11 +130,11 @@ int main(int argc, char *argv[])
 
                 // Check location of the data string.
                 // EEPROM or PROGRAMM FLASH
-                if ((strAddr >= codeStartAddr) && (strAddr <= (codeStartAddr + codeSpace)))
+                if((strAddr >= codeStartAddr) && (strAddr <= (codeStartAddr + codeSpace)))
                 {
                     memoryBias = codeStartAddr;
                 }
-                else if ((strAddr >= dataStartAddr) && (strAddr <= (dataStartAddr + dataSpace)))
+                else if((strAddr >= dataStartAddr) && (strAddr <= (dataStartAddr + dataSpace)))
                 {
                     memoryBias = dataStartAddr;
                 }
@@ -150,13 +150,13 @@ int main(int argc, char *argv[])
 
                 // Calculate required number of blocks
                 uint16_t blocksInString = (countBytes + blockTail) / blockSize;
-                if ((countBytes + blockTail) % blockSize != 0x00)
+                if((countBytes + blockTail) % blockSize != 0x00)
                 {
                     blocksInString++;
                 }
 
                 // If data in string is allocated already 
-                if (blocksInString == 0x00)
+                if(blocksInString == 0x00)
                 {
                     delete countBytesInString;
                     delete address;
@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
 
                 // Allocate data to memory block
                 // Save it start address and size
-                for (uint16_t i = 0x00; i < blocksInString; i++)
+                for(uint16_t i = 0x00; i < blocksInString; i++)
                 {
                     tmpAddrBuffer[i] = new uint16_t[2];
 
@@ -179,19 +179,19 @@ int main(int argc, char *argv[])
 
                     tmpDataBuffer[i] = new uint16_t[blockSize];
 
-                    for (uint16_t j = 0x00; j < blockSize; j++)
+                    for(uint16_t j = 0x00; j < blockSize; j++)
                     {
                         tmpDataBuffer[i][j] = 0x00;
                     }
 
-                    for (uint16_t j = 0; (j < countBytes) && (j < (blockSize - blockTail)); j++)
+                    for(uint16_t j = 0; (j < countBytes) && (j < (blockSize - blockTail)); j++)
                     {
                         tmpDataBuffer[i][j + blockTail] = getDataBytes(&bytesString[j * 2 + tmpDataOffset * 2]);
                     }
 
                     tmpDataOffset += blockSize - blockTail;
 
-                    if (countBytes > (blockSize - blockTail))
+                    if(countBytes > (blockSize - blockTail))
                     {
                         countBytes -= (blockSize - blockTail);
                     }
@@ -200,10 +200,10 @@ int main(int argc, char *argv[])
                 }
 
                 // If it is first block of data to be allocated
-                if (blockCount == 0x00)
+                if(blockCount == 0x00)
                 {
                     // Add new items to data and addresses buffer pointers
-                    for (uint16_t i = 0x00; i < blocksInString; i++)
+                    for(uint16_t i = 0x00; i < blocksInString; i++)
                     {
                         ptrBlocksData = addPtr(ptrBlocksData,
                                                blockCount,
@@ -223,15 +223,15 @@ int main(int argc, char *argv[])
 
                     // Try to find existing blocks with data allocated already
                     // then append new data
-                    for (uint16_t i = 0x00; i < blocksInString; i++)
+                    for(uint16_t i = 0x00; i < blocksInString; i++)
                     {
-                        for (uint16_t j = 0x00; j < blockCount; j++)
+                        for(uint16_t j = 0x00; j < blockCount; j++)
                         {
                             tempAddr = ptrBlocksAddr[j][0];
 
-                            if (tempAddr == tmpAddrBuffer[i][0])
+                            if(tempAddr == tmpAddrBuffer[i][0])
                             {
-                                for (uint16_t k = 0x00; k < blockSize; k++)
+                                for(uint16_t k = 0x00; k < blockSize; k++)
                                 {
                                     ptrBlocksData[j][k] += tmpDataBuffer[i][k];
                                 }
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
                             }
                         }
 
-                        if (tempAddr != tmpAddrBuffer[i][0])
+                        if(tempAddr != tmpAddrBuffer[i][0])
                         {
                             ptrBlocksData = addPtr(ptrBlocksData,
                                                    blockCount,
@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
                 }
 
                 // Release memory
-                for (uint16_t i = 0; i < blocksInString; i++)
+                for(uint16_t i = 0; i < blocksInString; i++)
                 {
                     delete[] tmpDataBuffer[i];
                     delete[] tmpAddrBuffer[i];
@@ -272,7 +272,7 @@ int main(int argc, char *argv[])
     file_out << "#define blockSize (uint8_t)0x" << std::hex << blockSize << "\n\n";
     file_out << "uint16_t blockAddrArray[] = {";
 
-    for (uint16_t i = 0x00; i < blockCount; i++)
+    for(uint16_t i = 0x00; i < blockCount; i++)
     {
         file_out << "0x" << std::hex << std::uppercase << ptrBlocksAddr[i][0];
         file_out << ", 0x" << ptrBlocksAddr[i][1] << ", ";
@@ -283,13 +283,13 @@ int main(int argc, char *argv[])
     file_out << "};\n\n";
 
     file_out << "unsigned char blockDataArray[] = {";
-    for (uint16_t i = 0x00; i < blockCount; i++)
-        for (uint16_t j = 0x00; j < blockSize; j++)
+    for(uint16_t i = 0x00; i < blockCount; i++)
+        for(uint16_t j = 0x00; j < blockSize; j++)
         {
-            if ((j % 8) == 0x00)
+            if((j % 8) == 0x00)
                 file_out << "\\\n";
 
-            if (ptrBlocksData[i][j] > 0x0F)
+            if(ptrBlocksData[i][j] > 0x0F)
             {
                 file_out << "0x" << std::hex << std::uppercase << ptrBlocksData[i][j];
                 file_out << ", ";
@@ -305,7 +305,7 @@ int main(int argc, char *argv[])
     file_out.seekp(currentPos - 2);
     file_out << "};\n\n";
 
-    for (uint16_t i = 0; i < blockCount; i++)
+    for(uint16_t i = 0; i < blockCount; i++)
     {
         delete[] ptrBlocksAddr[i];
         delete[] ptrBlocksData[i];
@@ -321,13 +321,13 @@ int main(int argc, char *argv[])
 // -------------------------------------
 //    Extract address bytes from buffer
 // -------------------------------------
-uint16_t getAddr(char * ptr)
+uint16_t getAddr(char *ptr)
 {
     uint16_t tempAddr = 0x00;
 
-    for (short i = 0x00; i < 0x04; i++)
+    for(short i = 0x00; i < 0x04; i++)
     {
-        if (((uint16_t)ptr[i] - (uint16_t)0x30) <= (uint16_t)0x09)
+        if(((uint16_t)ptr[i] - (uint16_t)0x30) <= (uint16_t)0x09)
             tempAddr += (((uint16_t)ptr[i] - 0x30) << (0x03 - i) * 0x04);
         else
             tempAddr += (((uint16_t)ptr[i] - 0x37) << (0x03 - i) * 0x04);
@@ -342,9 +342,9 @@ uint16_t getAddr(char * ptr)
 uint16_t getDataBytes(char *ptr)
 {
     uint16_t tempData = 0x00;
-    for (short i = 0x00; i < 0x02; i++)
+    for(short i = 0x00; i < 0x02; i++)
     {
-        if (((uint16_t)ptr[i] - (uint16_t)0x30) <= (uint16_t)0x09)
+        if(((uint16_t)ptr[i] - (uint16_t)0x30) <= (uint16_t)0x09)
             tempData += (((uint16_t)ptr[i] - 0x30) << (0x01 - i) * 0x04);
         else
             tempData += (((uint16_t)ptr[i] - 0x37) << (0x01 - i) * 0x04);
@@ -356,7 +356,7 @@ uint16_t getDataBytes(char *ptr)
 // -------------------------------------
 //    Add new items to dynamic buffer
 // -------------------------------------
-uint16_t** addPtr(uint16_t** ptr, uint16_t size, uint16_t* data, bool isData)
+uint16_t **addPtr(uint16_t **ptr, uint16_t size, uint16_t *data, bool isData)
 {
     if(size == 0)
     {
@@ -373,10 +373,10 @@ uint16_t** addPtr(uint16_t** ptr, uint16_t size, uint16_t* data, bool isData)
         ptr = copy;
     }
 
-    if (isData)
+    if(isData)
     {
         ptr[size] = new uint16_t[blockSize];
-        for (uint16_t i = 0x00; i < blockSize; i++)
+        for(uint16_t i = 0x00; i < blockSize; i++)
         {
             ptr[size][i] = data[i];
         }
@@ -384,7 +384,7 @@ uint16_t** addPtr(uint16_t** ptr, uint16_t size, uint16_t* data, bool isData)
     else
     {
         ptr[size] = new uint16_t[2];
-        for (uint16_t i = 0x00; i < 2; i++)
+        for(uint16_t i = 0x00; i < 2; i++)
         {
             ptr[size][i] = data[i];
         }
